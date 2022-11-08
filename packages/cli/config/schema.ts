@@ -600,6 +600,15 @@ export const schema = {
 		},
 	},
 
+	sflowApi: {
+		apiKey: {
+			doc: 'API key for Sflow',
+			format: String,
+			default: 'b7e24558-50af-40b3-a3bc-3debbe70542c',
+			env: 'N8N_SFLOW_API_KEY',
+		},
+	},
+
 	publicApi: {
 		disabled: {
 			format: Boolean,

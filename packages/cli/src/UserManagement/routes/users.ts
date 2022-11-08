@@ -26,6 +26,102 @@ import { issueCookie } from '../auth/jwt';
 
 export function usersNamespace(this: N8nApp): void {
 	/**
+	 * Create sflow user.
+	 *
+	 * Authless endpoint.
+	 */
+	this.app.post(
+		`/${this.restEndpoint}/createuser`,
+		ResponseHelper.send(async (req: UserRequest.SflowSignUp, res: Response) => {
+			const { apikey, sflowUid, sflowEmail, firstName, lastName, password } = req.body;
+			if (!apikey) {
+				Logger.debug('Request failed, API Key is required to authorize Sflow request', {
+					payload: req.body,
+				});
+				throw new ResponseHelper.ResponseError(
+					'API Key is required to authorize Sflow request',
+					undefined,
+					400,
+				);
+			}
+			if (config.getEnv('sflowApi.apiKey') !== apikey) {
+				Logger.debug('Request failed because of invalid API key', { payload: req.body });
+				throw new ResponseHelper.ResponseError('API key is invalid', undefined, 400);
+			}
+			if (!sflowUid) {
+				Logger.debug('Request failed because of missing Sflow userId', { payload: req.body });
+				throw new ResponseHelper.ResponseError('Sflow userId is missing', undefined, 400);
+			}
+			if (!sflowEmail || !firstName || !lastName || !password) {
+				Logger.debug('Request failed because of missing properties in payload', {
+					payload: req.body,
+				});
+				throw new ResponseHelper.ResponseError('Invalid payload', undefined, 400);
+			}
+			if (!validator.isEmail(sflowEmail)) {
+				Logger.debug('Invalid email in payload', { invalidEmail: sflowEmail });
+				throw new ResponseHelper.ResponseError(
+					`Invalid email address: ${sflowEmail}`,
+					undefined,
+					400,
+				);
+			}
+
+			const createUsers: { [key: string]: string | null } = {};
+			createUsers[sflowEmail.toLowerCase()] = null;
+
+			const role = await Db.collections.Role.findOne({ scope: 'global', name: 'member' });
+			if (!role) {
+				Logger.error('No global member role was found in database');
+				throw new ResponseHelper.ResponseError('Members role not found', undefined, 500);
+			}
+
+			const user = await Db.collections.User.findOne({ resetPasswordToken: sflowUid });
+			if (user) {
+				Logger.debug('Sflow userId already exists', { payload: req.body });
+				// throw new ResponseHelper.ResponseError('Sflow userId already exists', undefined, 400);
+				const uid = user.id;
+				return { uid };
+			}
+
+			Logger.debug('Creating 1 user shell...');
+
+			try {
+				await Db.transaction(async (transactionManager) => {
+					const newUser = Object.assign(new User(), {
+						email: sflowEmail.toLowerCase(),
+						resetPasswordToken: sflowUid,
+						firstName,
+						lastName,
+						globalRole: role,
+					});
+					newUser.password = await hashPassword(password);
+					const savedUser = await transactionManager.save<User>(newUser);
+					await issueCookie(res, savedUser);
+					createUsers[savedUser.email] = savedUser.id;
+				});
+			} catch (error) {
+				ErrorReporter.error(error);
+				Logger.error('Failed to create user shells', { userShells: createUsers });
+				throw new ResponseHelper.ResponseError('An error occurred during user creation');
+			}
+
+			const uid = createUsers[sflowEmail.toLowerCase()];
+			if (!uid) {
+				Logger.error('Failed to create user shells', { userShells: createUsers });
+				throw new ResponseHelper.ResponseError('An error occurred during user creation');
+			}
+
+			Logger.info('Created user shell successfully', { userId: uid });
+			Logger.verbose('1 user shell created', { userShells: createUsers });
+			void InternalHooksManager.getInstance().onUserSignup({
+				user_id: uid,
+			});
+			return { uid };
+		}),
+	);
+
+	/**
 	 * Send email invite(s) to one or multiple users and create user shell(s).
 	 */
 	this.app.post(

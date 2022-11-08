@@ -63,6 +63,16 @@ export declare namespace WorkflowRequest {
 
 	type GetAll = AuthenticatedRequest<{}, {}, {}, { filter: string }>;
 
+	type SflowGetAll = AuthlessRequest<
+		{},
+		{},
+		{
+			apikey: string;
+			userid: string;
+		},
+		{ filter: string }
+	>;
+
 	type GetAllActive = AuthenticatedRequest;
 
 	type GetAllActivationErrors = Get;
@@ -235,6 +245,19 @@ export declare namespace UserRequest {
 			password: string;
 		}
 	>;
+
+	export type SflowSignUp = AuthlessRequest<
+		{},
+		{},
+		{
+			apikey: string;
+			sflowUid: string;
+			sflowEmail: string;
+			firstName: string;
+			lastName: string;
+			password: string;
+		}
+	>;
 }
 
 // ----------------------------------
@@ -247,6 +270,15 @@ export type LoginRequest = AuthlessRequest<
 	{
 		email: string;
 		password: string;
+	}
+>;
+
+export type SflowLoginRequest = AuthlessRequest<
+	{},
+	{},
+	{
+		apikey: string;
+		userid: string;
 	}
 >;
 

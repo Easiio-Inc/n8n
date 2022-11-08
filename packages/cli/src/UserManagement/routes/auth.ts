@@ -9,10 +9,54 @@ import { issueCookie, resolveJwt } from '../auth/jwt';
 import { N8nApp, PublicUser } from '../Interfaces';
 import { compareHash, sanitizeUser } from '../UserManagementHelper';
 import { User } from '../../databases/entities/User';
-import type { LoginRequest } from '../../requests';
+import type { LoginRequest, SflowLoginRequest } from '../../requests';
 import config = require('../../../config');
 
 export function authenticationMethods(this: N8nApp): void {
+	/**
+	 * Log in a sflow user.
+	 *
+	 * Authless endpoint.
+	 */
+	this.app.post(
+		`/${this.restEndpoint}/sflowauth`,
+		ResponseHelper.send(async (req: SflowLoginRequest, res: Response): Promise<PublicUser> => {
+			const { apikey, userid } = req.body;
+			if (!apikey) {
+				throw new Error('API Key is required to authorize Sflow request');
+			}
+			if (config.getEnv('sflowApi.apiKey') !== apikey) {
+				throw new Error('API Key is invalid');
+			}
+			if (!userid) {
+				throw new Error('UserID is required to log in');
+			}
+
+			let user: User | undefined;
+			try {
+				user = await Db.collections.User.findOne(
+					{ id: userid },
+					{
+						relations: ['globalRole'],
+					},
+				);
+			} catch (error) {
+				throw new Error('Unable to access database.');
+			}
+
+			if (!user) {
+				const error = new Error('UserID is not found, please check it again.');
+				// @ts-ignore
+				error.httpStatusCode = 404;
+				throw error;
+			}
+
+			await issueCookie(res, user);
+
+			return sanitizeUser(user);
+		}),
+	);
+
 	/**
 	 * Log in a user.
 	 *
