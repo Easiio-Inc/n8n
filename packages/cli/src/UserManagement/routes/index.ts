@@ -42,6 +42,8 @@ export function addRoutes(this: N8nApp, ignoredEndpoints: string[], restEndpoint
 			req.url.startsWith(`/${restEndpoint}/login`) ||
 			req.url.startsWith(`/${restEndpoint}/logout`) ||
 			req.url.startsWith(`/${restEndpoint}/resolve-signup-token`) ||
+			req.url.startsWith(`/${restEndpoint}/createuser`) ||
+			req.url.startsWith(`/${restEndpoint}/sflowauth`) ||
 			isPostUsersId(req, restEndpoint) ||
 			req.url.startsWith(`/${restEndpoint}/forgot-password`) ||
 			req.url.startsWith(`/${restEndpoint}/resolve-password-token`) ||

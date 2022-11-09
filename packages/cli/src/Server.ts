@@ -408,6 +408,7 @@ class App {
 			'assets',
 			'healthz',
 			'metrics',
+			`${this.restEndpoint}/workflows/sflow`,
 			this.endpointWebhook,
 			this.endpointWebhookTest,
 			this.endpointPresetCredentials,
