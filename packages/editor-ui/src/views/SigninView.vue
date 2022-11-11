@@ -16,6 +16,7 @@ import { IFormBoxConfig } from '@/Interface';
 import { VIEWS } from '@/constants';
 import { mapStores } from 'pinia';
 import { useUsersStore } from '@/stores/users';
+import QueryString from 'qs';
 
 export default mixins(
 	showMessage,
@@ -90,6 +91,43 @@ export default mixins(
 				this.loading = false;
 			}
 		},
+		async onSfLogin(values: {[key: string]: string}) {
+			try {
+				this.loading = true;
+				await this.usersStore.loginWithSF(values as {apikey: string, userid: string});
+				this.clearAllStickyNotifications();
+				this.loading = false;
+
+				if (typeof this.$route.query.redirect === 'string') {
+					const redirect = decodeURIComponent(this.$route.query.redirect);
+					if (redirect.startsWith('/')) { // protect against phishing
+						this.$router.push(redirect);
+
+						return;
+					}
+				}
+
+				this.$router.push({ name: VIEWS.HOMEPAGE });
+			} catch (error) {
+				this.$showError(error, this.$locale.baseText('auth.signin.error'));
+				this.loading = false;
+			}
+		},
 	},
+	mounted(){
+		// console.log('mounted================', this.$route)
+		const apiKey = import.meta.env.VUE_APP_APIKEY
+		const { n8nUId = '' as string, redirect = '' as string } = this.$route.query || {}
+		if(n8nUId){
+			this.onSfLogin({apikey: apiKey, userid: n8nUId} as  {apikey: string, userid: string})
+		}else if(redirect){
+			const redirectStr = decodeURIComponent(redirect as string)
+			const queryParamsStr = redirectStr.split('?')[1] || ''
+			const queryParams = QueryString.parse(queryParamsStr)
+			if(queryParams && queryParams.n8nUId){
+				this.onSfLogin({apikey: apiKey, userid: queryParams.n8nUId} as  {apikey: string, userid: string})
+			}
+		}
+	}
 });
 </script>

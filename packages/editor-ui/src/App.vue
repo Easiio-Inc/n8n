@@ -31,7 +31,7 @@ import Modals from './components/Modals.vue';
 import LoadingView from './views/LoadingView.vue';
 import Telemetry from './components/Telemetry.vue';
 import { HIRING_BANNER, LOCAL_STORAGE_THEME, VIEWS } from './constants';
-
+import QueryString from 'querystring'
 import mixins from 'vue-typed-mixins';
 import { showMessage } from './components/mixins/showMessage';
 import { userHelpers } from './components/mixins/userHelpers';
@@ -125,7 +125,19 @@ export default mixins(
 
 			this.$telemetry.page(this.$route);
 		},
-		authenticate() {
+		async authenticate() {
+			const sfn8nUId = this.$route?.query?.n8nUId || ''
+			const oldSfn8nUId = window.localStorage.getItem('sfUId')
+			if(sfn8nUId && sfn8nUId !== oldSfn8nUId && this.$route.path !== '/signin'){
+				window.localStorage.setItem('sfUId', sfn8nUId as string)
+				const redirect =
+					this.$route.query.redirect ||
+					encodeURIComponent(`${window.location.pathname}?${QueryString.stringify(this.$route.query as any)}`);
+				await this.usersStore.logout()
+				this.$router.replace({ name: VIEWS.SIGNIN, query: { redirect } });
+				return
+			}
+
 			// redirect to setup page. user should be redirected to this only once
 			if (this.settingsStore.isUserManagementEnabled && this.settingsStore.showSetupPage) {
 				if (this.$route.name === VIEWS.SETUP) {

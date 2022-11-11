@@ -14,6 +14,10 @@ export function login(context: IRestApiContext, params: {email: string, password
 	return makeRestApiRequest(context, 'POST', '/login', params);
 }
 
+export function sflowauth(context: IRestApiContext, params: {apikey: string, userid: string}): Promise<IUserResponse> {
+	return makeRestApiRequest(context, 'POST', '/sflowauth', params);
+}
+
 export async function logout(context: IRestApiContext): Promise<void> {
 	await makeRestApiRequest(context, 'POST', '/logout');
 }

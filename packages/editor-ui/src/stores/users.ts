@@ -1,4 +1,4 @@
-import { changePassword, deleteUser, getCurrentUser, getUsers, inviteUsers, login, loginCurrentUser, logout, reinvite, sendForgotPasswordEmail, setupOwner, signup, skipOwnerSetup, submitPersonalizationSurvey, updateCurrentUser, updateCurrentUserPassword, validatePasswordToken, validateSignupToken } from "@/api/users";
+import { changePassword, deleteUser, getCurrentUser, getUsers, inviteUsers, login, sflowauth, loginCurrentUser, logout, reinvite, sendForgotPasswordEmail, setupOwner, signup, skipOwnerSetup, submitPersonalizationSurvey, updateCurrentUser, updateCurrentUserPassword, validatePasswordToken, validateSignupToken } from "@/api/users";
 import { PERSONALIZATION_MODAL_KEY, STORES } from "@/constants";
 import { IInviteResponse, IPersonalizationLatestVersion, IUser, IUserResponse, IUsersState } from "@/Interface";
 import { getPersonalizedNodeTypes, isAuthorized, PERMISSIONS, ROLE } from "@/stores/userHelpers";
@@ -110,6 +110,14 @@ export const useUsersStore = defineStore(STORES.USERS, {
 				this.currentUserId = user.id;
 			}
 		},
+		async loginWithSF(params: {apikey: string, userid: string}): Promise<void> {
+			const rootStore = useRootStore();
+			const user = await sflowauth(rootStore.getRestApiContext, params);
+			if (user) {
+				this.addUsers([user]);
+				this.currentUserId = user.id;
+			}
+		},
 		async logout(): Promise<void> {
 			const rootStore = useRootStore();
 			await logout(rootStore.getRestApiContext);
@@ -188,8 +196,8 @@ export const useUsersStore = defineStore(STORES.USERS, {
 			const surveyEnabled = settingsStore.isPersonalizationSurveyEnabled;
 			const currentUser = this.currentUser;
 			if (surveyEnabled && currentUser && !currentUser.personalizationAnswers) {
-				const uiStore = useUIStore();
-				uiStore.openModal(PERSONALIZATION_MODAL_KEY);
+				// const uiStore = useUIStore();
+				// uiStore.openModal(PERSONALIZATION_MODAL_KEY);
 			}
 		},
 		async skipOwnerSetup(): Promise<void> {
