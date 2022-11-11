@@ -163,72 +163,7 @@ workflowsController.post(
 			throw new ResponseHelper.ResponseError('UserID is invalid', undefined, 400);
 		}
 
-		const sharedWorkflowIds = await getSharedWorkflowIds(user);
-		if (sharedWorkflowIds.length === 0) {
-			return [];
-		}
-
-		// parse incoming filter object and remove non-valid fields
-		let filter: IGetWorkflowsQueryFilter | undefined = undefined;
-		if (req.query.filter) {
-			try {
-				const filterJson: JsonObject = jsonParse(req.query.filter);
-				if (filterJson) {
-					Object.keys(filterJson).map((key) => {
-						if (!allowedWorkflowsQueryFilterFields.includes(key)) delete filterJson[key];
-					});
-					if (jsonSchemaValidate(filterJson, schemaGetWorkflowsQueryFilter).valid) {
-						filter = filterJson as IGetWorkflowsQueryFilter;
-					}
-				}
-			} catch (error) {
-				LoggerProxy.error('Failed to parse filter', {
-					userId: user.id,
-					filter: req.query.filter,
-				});
-				throw new ResponseHelper.ResponseError(
-					`Parameter "filter" contained invalid JSON string.`,
-					500,
-					500,
-				);
-			}
-		}
-
-		// safeguard against querying ids not shared with the user
-		if (filter?.id !== undefined) {
-			const workflowId = parseInt(filter.id.toString());
-			if (workflowId && !sharedWorkflowIds.includes(workflowId)) {
-				LoggerProxy.verbose(`User ${user.id} attempted to query non-shared workflow ${workflowId}`);
-				return [];
-			}
-		}
-
-		const query: FindManyOptions<WorkflowEntity> = {
-			select: ['id', 'name', 'active', 'createdAt', 'updatedAt'],
-			relations: ['tags'],
-		};
-
-		if (config.getEnv('workflowTagsDisabled')) {
-			delete query.relations;
-		}
-
-		const workflows = await Db.collections.Workflow.find(
-			Object.assign(query, {
-				where: {
-					id: In(sharedWorkflowIds),
-					...filter,
-				},
-			}),
-		);
-
-		return workflows.map((workflow) => {
-			const { id, ...rest } = workflow;
-
-			return {
-				id: id.toString(),
-				...rest,
-			};
-		});
+		return WorkflowsService.getMany(user, req.query.filter);
 	}),
 );
 
