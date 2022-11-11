@@ -337,6 +337,49 @@ workflowsController.post(
 	}),
 );
 
+// Activate an existing workflow
+/**
+ * POST /workflows/sflow/:id
+ */
+workflowsController.post(
+	`/sflow/:id`,
+	ResponseHelper.send(async (req: WorkflowRequest.SflowUpdate) => {
+		const { id: workflowId } = req.params;
+		const { apikey, userid, active } = req.body;
+		if (!apikey) {
+			throw new ResponseHelper.ResponseError(
+				'API Key is required to authorize Sflow request',
+				undefined,
+				400,
+			);
+		}
+		if (config.getEnv('sflowApi.apiKey') !== apikey) {
+			throw new ResponseHelper.ResponseError('API Key is invalid', undefined, 400);
+		}
+		if (!userid) {
+			throw new ResponseHelper.ResponseError('UserID is required', undefined, 400);
+		}
+
+		const user = await Db.collections.User.findOne(
+			{ id: userid },
+			{
+				relations: ['globalRole'],
+			},
+		);
+
+		if (!user) {
+			throw new ResponseHelper.ResponseError('UserID is invalid', undefined, 400);
+		}
+
+		await Db.collections.Workflow.update(workflowId, { active, updatedAt: new Date() });
+
+		return {
+			id: workflowId.toString(),
+			active,
+		};
+	}),
+);
+
 /**
  * GET /workflows/new
  */

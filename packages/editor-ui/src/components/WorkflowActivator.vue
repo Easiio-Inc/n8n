@@ -15,7 +15,7 @@
 				:value="workflowActive"
 				@change="activeChanged"
 			  :title="workflowActive ? $locale.baseText('workflowActivator.deactivateWorkflow') : $locale.baseText('workflowActivator.activateWorkflow')"
-				:disabled="disabled || updatingWorkflowActivation"
+				:disabled="true || disabled || updatingWorkflowActivation"
 				:active-color="getActiveColor"
 				inactive-color="#8899AA"
 				element-loading-spinner="el-icon-loading">

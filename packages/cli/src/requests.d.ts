@@ -59,6 +59,17 @@ export declare namespace WorkflowRequest {
 
 	type Update = AuthenticatedRequest<{ id: string }, {}, RequestBody, { forceSave?: string }>;
 
+	type SflowUpdate = AuthlessRequest<
+		{ id: string },
+		{},
+		{
+			apikey: string;
+			userid: string;
+			active: boolean;
+		},
+		{ forceSave?: string }
+	>;
+
 	type NewName = AuthenticatedRequest<{}, {}, {}, { name?: string }>;
 
 	type GetAll = AuthenticatedRequest<{}, {}, {}, { filter: string }>;
