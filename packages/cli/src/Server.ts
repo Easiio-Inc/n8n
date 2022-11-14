@@ -698,7 +698,12 @@ class App {
 		if (process.env.NODE_ENV !== 'production') {
 			this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
 				// Allow access also from frontend when developing
-				res.header('Access-Control-Allow-Origin', 'http://localhost:8080');
+				var allowedOrigins = ['http://127.0.0.1:8083', 'http://localhost:8083', 'http://127.0.0.1:8080', 'http://localhost:8080', 'https://sf.easiio.cn' ];
+				var origin = req.headers.origin || '';
+				if(allowedOrigins.indexOf(origin) > -1 || origin.indexOf('sflow.io') > -1 || origin.indexOf('sflow.pro') > -1){
+					res.header('Access-Control-Allow-Origin', origin);
+				}
+				// res.header('Access-Control-Allow-Origin', 'http://localhost:8080');
 				res.header('Access-Control-Allow-Credentials', 'true');
 				res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
 				res.header(
