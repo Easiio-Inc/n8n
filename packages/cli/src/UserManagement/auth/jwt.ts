@@ -65,6 +65,7 @@ export async function issueCookie(res: Response, user: User): Promise<void> {
 	res.cookie(AUTH_COOKIE_NAME, userData.token, {
 		maxAge: userData.expiresIn,
 		httpOnly: true,
-		sameSite: 'lax',
+		sameSite: 'none',
+		secure: true,
 	});
 }
