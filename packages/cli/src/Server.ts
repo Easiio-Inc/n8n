@@ -695,7 +695,7 @@ class App {
 			}),
 		);
 
-		if (process.env.NODE_ENV !== 'production') {
+		if (true || process.env.NODE_ENV !== 'production') {
 			this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
 				// Allow access also from frontend when developing
 				var allowedOrigins = ['http://127.0.0.1:8083', 'http://localhost:8083', 'http://127.0.0.1:8080', 'http://localhost:8080', 'https://sf.easiio.cn' ];
