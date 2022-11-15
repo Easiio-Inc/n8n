@@ -44,10 +44,12 @@ async function request(config: {method: Method, baseURL: string, endpoint: strin
 		baseURL,
 		headers,
 	};
-	if (import.meta.env.NODE_ENV !== 'production' && !baseURL.includes('api.n8n.io') ) {
+	// if (import.meta.env.NODE_ENV !== 'production' && !baseURL.includes('api.n8n.io') ) {
+	// 	options.withCredentials = true;
+	// }
+	if (!baseURL.includes('api.n8n.io')) {
 		options.withCredentials = true;
 	}
-	options.withCredentials = true;
 	if (['POST', 'PATCH', 'PUT'].includes(method)) {
 		options.data = data;
 	} else {
