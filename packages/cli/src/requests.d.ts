@@ -62,6 +62,15 @@ export declare namespace WorkflowRequest {
 
 	type Get = AuthenticatedRequest<{ id: string }>;
 
+	type SflowGet = AuthlessRequest<
+		{ id: string },
+		{},
+		{
+			apikey: string;
+			userid: string;
+		}
+	>;
+
 	type Delete = Get;
 
 	type Update = AuthenticatedRequest<

@@ -159,6 +159,74 @@ workflowsController.post(
 	}),
 );
 
+/**
+ * post /workflows/sflow/detail/:id
+ */
+workflowsController.post(
+	`/sflow/detail/:id`,
+	ResponseHelper.send(async (req: WorkflowRequest.SflowGet) => {
+		const { id: workflowId } = req.params;
+		const { apikey, userid } = req.body;
+		if (!apikey) {
+			throw new ResponseHelper.ResponseError(
+				'API Key is required to authorize Sflow request',
+				undefined,
+				400,
+			);
+		}
+		if (config.getEnv('sflowApi.apiKey') !== apikey) {
+			throw new ResponseHelper.ResponseError('API Key is invalid', undefined, 400);
+		}
+		if (!userid) {
+			throw new ResponseHelper.ResponseError('UserID is required', undefined, 400);
+		}
+		const user = await Db.collections.User.findOne(
+			{ id: userid },
+			{
+				relations: ['globalRole'],
+			},
+		);
+		if (!user) {
+			throw new ResponseHelper.ResponseError('UserID is invalid', undefined, 400);
+		}
+
+		let relations = ['workflow', 'workflow.tags'];
+		if (config.getEnv('workflowTagsDisabled')) {
+			relations = relations.filter((relation) => relation !== 'workflow.tags');
+		}
+
+		const shared = await Db.collections.SharedWorkflow.findOne({
+			relations,
+			where: whereClause({
+				user,
+				entityType: 'workflow',
+				entityId: workflowId,
+			}),
+		});
+
+		if (!shared) {
+			LoggerProxy.info('User attempted to access a workflow without permissions', {
+				workflowId,
+				userId: user.id,
+			});
+			throw new ResponseHelper.ResponseError(
+				`Workflow with ID "${workflowId}" could not be found.`,
+				undefined,
+				404,
+			);
+		}
+
+		const {
+			workflow: { id, ...rest },
+		} = shared;
+
+		return {
+			id: id.toString(),
+			...rest,
+		};
+	}),
+);
+
 // Activate an existing workflow
 /**
  * POST /workflows/sflow/:id
