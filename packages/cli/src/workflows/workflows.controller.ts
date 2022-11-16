@@ -249,19 +249,23 @@ workflowsController.post(
 		if (!userid) {
 			throw new ResponseHelper.ResponseError('UserID is required', undefined, 400);
 		}
-
 		const user = await Db.collections.User.findOne(
 			{ id: userid },
 			{
 				relations: ['globalRole'],
 			},
 		);
-
 		if (!user) {
 			throw new ResponseHelper.ResponseError('UserID is invalid', undefined, 400);
 		}
 
 		await Db.collections.Workflow.update(workflowId, { active, updatedAt: new Date() });
+
+		if (active) {
+			await ActiveWorkflowRunner.getInstance().add(workflowId, 'activate');
+		} else {
+			await ActiveWorkflowRunner.getInstance().remove(workflowId);
+		}
 
 		return {
 			id: workflowId.toString(),
