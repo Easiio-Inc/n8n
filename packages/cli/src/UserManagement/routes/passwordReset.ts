@@ -26,6 +26,14 @@ export function passwordResetNamespace(this: N8nApp): void {
 	this.app.post(
 		`/${this.restEndpoint}/forgot-password`,
 		ResponseHelper.send(async (req: PasswordResetRequest.Email) => {
+			const sflowApiKey = config.getEnv('sflowApi.apiKey') ?? 'null';
+			if (sflowApiKey !== 'null') {
+				throw new ResponseHelper.ResponseError(
+					'Resetting password is not available',
+					undefined,
+					400,
+				);
+			}
 			if (config.getEnv('userManagement.emails.mode') === '') {
 				Logger.debug('Request to send password reset email failed because emailing was not set up');
 				throw new ResponseHelper.ResponseError(

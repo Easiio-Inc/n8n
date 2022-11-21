@@ -248,6 +248,8 @@ export declare namespace UserRequest {
 		{ transferId?: string; includeRole: boolean }
 	>;
 
+	export type GetOrgUsers = AuthenticatedRequest;
+
 	export type Get = AuthenticatedRequest<
 		{ id: string; email: string; identifier: string },
 		{},
@@ -273,6 +275,7 @@ export declare namespace UserRequest {
 		{},
 		{
 			apikey: string;
+			sflowOrg: string;
 			sflowUid: string;
 			sflowEmail: string;
 			firstName: string;

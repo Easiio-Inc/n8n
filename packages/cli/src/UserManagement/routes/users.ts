@@ -35,7 +35,7 @@ export function usersNamespace(this: N8nApp): void {
 	this.app.post(
 		`/${this.restEndpoint}/createuser`,
 		ResponseHelper.send(async (req: UserRequest.SflowSignUp, res: Response) => {
-			const { apikey, sflowUid, sflowEmail, firstName, lastName, password } = req.body;
+			const { apikey, sflowOrg, sflowUid, sflowEmail, firstName, lastName, password } = req.body;
 			if (!apikey) {
 				Logger.debug('Request failed, API Key is required to authorize Sflow request', {
 					payload: req.body,
@@ -53,6 +53,10 @@ export function usersNamespace(this: N8nApp): void {
 			if (!sflowUid) {
 				Logger.debug('Request failed because of missing Sflow userId', { payload: req.body });
 				throw new ResponseHelper.ResponseError('Sflow userId is missing', undefined, 400);
+			}
+			if (!sflowOrg) {
+				Logger.debug('Request failed because of missing Sflow orgId', { payload: req.body });
+				throw new ResponseHelper.ResponseError('Sflow orgId is missing', undefined, 400);
 			}
 			if (!sflowEmail || !firstName || !lastName || !password) {
 				Logger.debug('Request failed because of missing properties in payload', {
@@ -93,6 +97,7 @@ export function usersNamespace(this: N8nApp): void {
 					const newUser = Object.assign(new User(), {
 						email: sflowEmail.toLowerCase(),
 						resetPasswordToken: sflowUid,
+						resetPasswordTokenExpiration: Number(sflowOrg),
 						firstName,
 						lastName,
 						globalRole: role,
@@ -473,8 +478,14 @@ export function usersNamespace(this: N8nApp): void {
 
 	this.app.get(
 		`/${this.restEndpoint}/users`,
-		ResponseHelper.send(async () => {
-			const users = await Db.collections.User.find({ relations: ['globalRole'] });
+		ResponseHelper.send(async (req: UserRequest.GetOrgUsers) => {
+			const sflowOrg = req.user.resetPasswordTokenExpiration ?? 0;
+			// Logger.debug('Get org users', { userId: req.user.id, sflowOrg });
+
+			const users = await Db.collections.User.find({
+				where: { resetPasswordTokenExpiration: In([sflowOrg]) },
+				relations: ['globalRole'],
+			});
 
 			return users.map((user): PublicUser => sanitizeUser(user, ['personalizationAnswers']));
 		}),
