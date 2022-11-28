@@ -36,10 +36,8 @@ export function passwordResetNamespace(this: N8nApp): void {
 			}
 			if (config.getEnv('userManagement.emails.mode') === '') {
 				Logger.debug('Request to send password reset email failed because emailing was not set up');
-				throw new ResponseHelper.ResponseError(
+				throw new ResponseHelper.InternalServerError(
 					'Email sending must be set up in order to request a password reset email',
-					undefined,
-					500,
 				);
 			}
 
@@ -50,7 +48,7 @@ export function passwordResetNamespace(this: N8nApp): void {
 					'Request to send password reset email failed because of missing email in payload',
 					{ payload: req.body },
 				);
-				throw new ResponseHelper.ResponseError('Email is mandatory', undefined, 400);
+				throw new ResponseHelper.BadRequestError('Email is mandatory');
 			}
 
 			if (!validator.isEmail(email)) {
@@ -58,7 +56,7 @@ export function passwordResetNamespace(this: N8nApp): void {
 					'Request to send password reset email failed because of invalid email in payload',
 					{ invalidEmail: email },
 				);
-				throw new ResponseHelper.ResponseError('Invalid email address', undefined, 400);
+				throw new ResponseHelper.BadRequestError('Invalid email address');
 			}
 
 			// User should just be able to reset password if one is already present
@@ -101,10 +99,8 @@ export function passwordResetNamespace(this: N8nApp): void {
 					public_api: false,
 				});
 				if (error instanceof Error) {
-					throw new ResponseHelper.ResponseError(
+					throw new ResponseHelper.InternalServerError(
 						`Please contact your administrator: ${error.message}`,
-						undefined,
-						500,
 					);
 				}
 			}
@@ -139,7 +135,7 @@ export function passwordResetNamespace(this: N8nApp): void {
 						queryString: req.query,
 					},
 				);
-				throw new ResponseHelper.ResponseError('', undefined, 400);
+				throw new ResponseHelper.BadRequestError('');
 			}
 
 			// Timestamp is saved in seconds
@@ -159,7 +155,7 @@ export function passwordResetNamespace(this: N8nApp): void {
 						resetPasswordToken,
 					},
 				);
-				throw new ResponseHelper.ResponseError('', undefined, 404);
+				throw new ResponseHelper.NotFoundError('');
 			}
 
 			Logger.info('Reset-password token resolved successfully', { userId: id });
@@ -186,10 +182,8 @@ export function passwordResetNamespace(this: N8nApp): void {
 						payload: req.body,
 					},
 				);
-				throw new ResponseHelper.ResponseError(
+				throw new ResponseHelper.BadRequestError(
 					'Missing user ID or password or reset password token',
-					undefined,
-					400,
 				);
 			}
 
@@ -212,7 +206,7 @@ export function passwordResetNamespace(this: N8nApp): void {
 						resetPasswordToken,
 					},
 				);
-				throw new ResponseHelper.ResponseError('', undefined, 404);
+				throw new ResponseHelper.NotFoundError('');
 			}
 
 			await Db.collections.User.update(userId, {
