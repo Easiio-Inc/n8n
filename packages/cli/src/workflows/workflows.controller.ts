@@ -131,17 +131,13 @@ workflowsController.post(
 	ResponseHelper.send(async (req: WorkflowRequest.SflowGetAll) => {
 		const { apikey, userid } = req.body;
 		if (!apikey) {
-			throw new ResponseHelper.ResponseError(
-				'API Key is required to authorize Sflow request',
-				undefined,
-				400,
-			);
+			throw new ResponseHelper.BadRequestError('API Key is required to authorize Sflow request');
 		}
 		if (config.getEnv('sflowApi.apiKey') !== apikey) {
-			throw new ResponseHelper.ResponseError('API Key is invalid', undefined, 400);
+			throw new ResponseHelper.BadRequestError('API Key is invalid');
 		}
 		if (!userid) {
-			throw new ResponseHelper.ResponseError('UserID is required', undefined, 400);
+			throw new ResponseHelper.BadRequestError('UserID is required');
 		}
 
 		const user = await Db.collections.User.findOne(
@@ -152,7 +148,7 @@ workflowsController.post(
 		);
 
 		if (!user) {
-			throw new ResponseHelper.ResponseError('UserID is invalid', undefined, 400);
+			throw new ResponseHelper.BadRequestError('UserID is invalid');
 		}
 
 		return WorkflowsService.getMany(user, req.query.filter);
@@ -168,17 +164,13 @@ workflowsController.post(
 		const { id: workflowId } = req.params;
 		const { apikey, userid } = req.body;
 		if (!apikey) {
-			throw new ResponseHelper.ResponseError(
-				'API Key is required to authorize Sflow request',
-				undefined,
-				400,
-			);
+			throw new ResponseHelper.BadRequestError('API Key is required to authorize Sflow request');
 		}
 		if (config.getEnv('sflowApi.apiKey') !== apikey) {
-			throw new ResponseHelper.ResponseError('API Key is invalid', undefined, 400);
+			throw new ResponseHelper.BadRequestError('API Key is invalid');
 		}
 		if (!userid) {
-			throw new ResponseHelper.ResponseError('UserID is required', undefined, 400);
+			throw new ResponseHelper.BadRequestError('UserID is required');
 		}
 		const user = await Db.collections.User.findOne(
 			{ id: userid },
@@ -187,7 +179,7 @@ workflowsController.post(
 			},
 		);
 		if (!user) {
-			throw new ResponseHelper.ResponseError('UserID is invalid', undefined, 400);
+			throw new ResponseHelper.BadRequestError('UserID is invalid');
 		}
 
 		let relations = ['workflow', 'workflow.tags'];
@@ -209,10 +201,8 @@ workflowsController.post(
 				workflowId,
 				userId: user.id,
 			});
-			throw new ResponseHelper.ResponseError(
+			throw new ResponseHelper.NotFoundError(
 				`Workflow with ID "${workflowId}" could not be found.`,
-				undefined,
-				404,
 			);
 		}
 
@@ -237,17 +227,13 @@ workflowsController.post(
 		const { id: workflowId } = req.params;
 		const { apikey, userid, active } = req.body;
 		if (!apikey) {
-			throw new ResponseHelper.ResponseError(
-				'API Key is required to authorize Sflow request',
-				undefined,
-				400,
-			);
+			throw new ResponseHelper.BadRequestError('API Key is required to authorize Sflow request');
 		}
 		if (config.getEnv('sflowApi.apiKey') !== apikey) {
-			throw new ResponseHelper.ResponseError('API Key is invalid', undefined, 400);
+			throw new ResponseHelper.BadRequestError('API Key is invalid');
 		}
 		if (!userid) {
-			throw new ResponseHelper.ResponseError('UserID is required', undefined, 400);
+			throw new ResponseHelper.BadRequestError('UserID is required');
 		}
 		const user = await Db.collections.User.findOne(
 			{ id: userid },
@@ -256,7 +242,7 @@ workflowsController.post(
 			},
 		);
 		if (!user) {
-			throw new ResponseHelper.ResponseError('UserID is invalid', undefined, 400);
+			throw new ResponseHelper.BadRequestError('UserID is invalid');
 		}
 
 		await Db.collections.Workflow.update(workflowId, { active, updatedAt: new Date() });

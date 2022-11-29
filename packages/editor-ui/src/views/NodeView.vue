@@ -2733,7 +2733,7 @@ export default mixins(
 							// @ts-ignore
 							this.instance.destroyDraggable(node.id);
 						} catch (e) {
-							console.error(e);
+							console.error(e); // eslint-disable-line no-console
 						}
 					});
 

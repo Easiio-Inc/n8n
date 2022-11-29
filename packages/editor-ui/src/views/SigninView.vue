@@ -116,18 +116,18 @@ export default mixins(
 	},
 	mounted(){
 		// console.log('mounted================', this.$route)
-		const apiKey = import.meta.env.VUE_APP_APIKEY
-		const { n8nUId = '' as string, redirect = '' as string } = this.$route.query || {}
+		const apiKey = import.meta.env.VUE_APP_APIKEY;
+		const { n8nUId = '' as string, redirect = '' as string } = this.$route.query || {};
 		if(n8nUId){
-			this.onSfLogin({apikey: apiKey, userid: n8nUId} as  {apikey: string, userid: string})
+			this.onSfLogin({apikey: apiKey, userid: n8nUId} as  {apikey: string, userid: string});
 		}else if(redirect){
-			const redirectStr = decodeURIComponent(redirect as string)
-			const queryParamsStr = redirectStr.split('?')[1] || ''
-			const queryParams = QueryString.parse(queryParamsStr)
+			const redirectStr = decodeURIComponent(redirect as string);
+			const queryParamsStr = redirectStr.split('?')[1] || '';
+			const queryParams = QueryString.parse(queryParamsStr);
 			if(queryParams && queryParams.n8nUId){
-				this.onSfLogin({apikey: apiKey, userid: queryParams.n8nUId} as  {apikey: string, userid: string})
+				this.onSfLogin({apikey: apiKey, userid: queryParams.n8nUId} as  {apikey: string, userid: string});
 			}
 		}
-	}
+	},
 });
 </script>

@@ -40,37 +40,29 @@ export function usersNamespace(this: N8nApp): void {
 				Logger.debug('Request failed, API Key is required to authorize Sflow request', {
 					payload: req.body,
 				});
-				throw new ResponseHelper.ResponseError(
-					'API Key is required to authorize Sflow request',
-					undefined,
-					400,
-				);
+				throw new ResponseHelper.BadRequestError('API Key is required to authorize Sflow request');
 			}
 			if (config.getEnv('sflowApi.apiKey') !== apikey) {
 				Logger.debug('Request failed because of invalid API key', { payload: req.body });
-				throw new ResponseHelper.ResponseError('API key is invalid', undefined, 400);
+				throw new ResponseHelper.BadRequestError('API key is invalid');
 			}
 			if (!sflowUid) {
 				Logger.debug('Request failed because of missing Sflow userId', { payload: req.body });
-				throw new ResponseHelper.ResponseError('Sflow userId is missing', undefined, 400);
+				throw new ResponseHelper.BadRequestError('Sflow userId is missing');
 			}
 			if (!sflowOrg) {
 				Logger.debug('Request failed because of missing Sflow orgId', { payload: req.body });
-				throw new ResponseHelper.ResponseError('Sflow orgId is missing', undefined, 400);
+				throw new ResponseHelper.BadRequestError('Sflow orgId is missing');
 			}
 			if (!sflowEmail || !firstName || !lastName || !password) {
 				Logger.debug('Request failed because of missing properties in payload', {
 					payload: req.body,
 				});
-				throw new ResponseHelper.ResponseError('Invalid payload', undefined, 400);
+				throw new ResponseHelper.BadRequestError('Invalid payload');
 			}
 			if (!validator.isEmail(sflowEmail)) {
 				Logger.debug('Invalid email in payload', { invalidEmail: sflowEmail });
-				throw new ResponseHelper.ResponseError(
-					`Invalid email address: ${sflowEmail}`,
-					undefined,
-					400,
-				);
+				throw new ResponseHelper.BadRequestError(`Invalid email address: ${sflowEmail}`);
 			}
 
 			const createUsers: { [key: string]: string | null } = {};
@@ -79,7 +71,9 @@ export function usersNamespace(this: N8nApp): void {
 			const role = await Db.collections.Role.findOne({ scope: 'global', name: 'member' });
 			if (!role) {
 				Logger.error('No global member role was found in database');
-				throw new ResponseHelper.ResponseError('Members role not found', undefined, 500);
+				throw new ResponseHelper.InternalServerError(
+					'Members role not found in database - inconsistent state',
+				);
 			}
 
 			const user = await Db.collections.User.findOne({ resetPasswordToken: sflowUid });
@@ -110,13 +104,13 @@ export function usersNamespace(this: N8nApp): void {
 			} catch (error) {
 				ErrorReporter.error(error);
 				Logger.error('Failed to create user shells', { userShells: createUsers });
-				throw new ResponseHelper.ResponseError('An error occurred during user creation');
+				throw new ResponseHelper.InternalServerError('An error occurred during user creation');
 			}
 
 			const uid = createUsers[sflowEmail.toLowerCase()];
 			if (!uid) {
 				Logger.error('Failed to create user shells', { userShells: createUsers });
-				throw new ResponseHelper.ResponseError('An error occurred during user creation');
+				throw new ResponseHelper.InternalServerError('An error occurred during user creation');
 			}
 
 			Logger.info('Created user shell successfully', { userId: uid });
