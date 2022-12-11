@@ -209,6 +209,51 @@ EEWorkflowController.get(
 	}),
 );
 
+// Returns (ee)workflows
+/**
+ * (EE) POST /workflows/sflow
+ */
+EEWorkflowController.post(
+	`/sflow`,
+	ResponseHelper.send(async (req: WorkflowRequest.SflowGetAll) => {
+		const { apikey, userid } = req.body;
+		if (!apikey) {
+			throw new ResponseHelper.BadRequestError('API Key is required to authorize Sflow request');
+		}
+		if (config.getEnv('sflowApi.apiKey') !== apikey) {
+			throw new ResponseHelper.BadRequestError('API Key is invalid');
+		}
+		if (!userid) {
+			throw new ResponseHelper.BadRequestError('UserID is required');
+		}
+
+		const user = await Db.collections.User.findOne(
+			{ id: userid },
+			{
+				relations: ['globalRole'],
+			},
+		);
+
+		if (!user) {
+			throw new ResponseHelper.BadRequestError('UserID is invalid');
+		}
+
+		const workflows = (await EEWorkflows.getMany(
+			user,
+			req.query.filter,
+		)) as unknown as WorkflowEntity[];
+
+		return Promise.all(
+			workflows.map(async (workflow) => {
+				EEWorkflows.addOwnerAndSharings(workflow);
+				await EEWorkflows.addCredentialsToWorkflow(workflow, user);
+				workflow.nodes = [];
+				return workflow;
+			}),
+		);
+	}),
+);
+
 EEWorkflowController.patch(
 	'/:id(\\d+)',
 	ResponseHelper.send(async (req: WorkflowRequest.Update) => {

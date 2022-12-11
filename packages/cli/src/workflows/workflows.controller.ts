@@ -39,6 +39,7 @@ workflowsController.use((req, res, next) => {
 });
 
 workflowsController.use('/', EEWorkflowController);
+workflowsController.use('/sflow', EEWorkflowController);
 
 /**
  * POST /workflows
