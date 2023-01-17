@@ -736,7 +736,8 @@ class App {
 					allowedOrigins.indexOf(origin) > -1 ||
 					origin.indexOf('sflow.io') > -1 ||
 					origin.indexOf('sflow.pro') > -1 ||
-					origin.indexOf('sflow.cc') > -1
+					origin.indexOf('sflow.cc') > -1 ||
+					origin.indexOf('worksapp.com') > -1
 				) {
 					res.header('Access-Control-Allow-Origin', origin);
 				}
