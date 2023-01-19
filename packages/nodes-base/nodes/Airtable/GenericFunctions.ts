@@ -33,9 +33,8 @@ export async function apiRequest(
 	query?: IDataObject,
 	uri?: string,
 	option: IDataObject = {},
-	// tslint:disable-next-line:no-any
 ): Promise<any> {
-	query = query || {};
+	query = query ?? {};
 
 	// For some reason for some endpoints the bearer auth does not work
 	// and it returns 404 like for the /meta request. So we always send
@@ -47,7 +46,7 @@ export async function apiRequest(
 		method,
 		body,
 		qs: query,
-		uri: uri || `https://api.airtable.com/v0/${endpoint}`,
+		uri: uri ?? `https://api.airtable.com/v0/${endpoint}`,
 		useQuerystring: false,
 		json: true,
 	};
@@ -75,7 +74,6 @@ export async function apiRequestAllItems(
 	endpoint: string,
 	body: IDataObject,
 	query?: IDataObject,
-	// tslint:disable-next-line:no-any
 ): Promise<any> {
 	if (query === undefined) {
 		query = {};

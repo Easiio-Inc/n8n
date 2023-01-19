@@ -642,8 +642,8 @@ export class Wait implements INodeType {
 			}
 
 			if (
-				basicAuthData.name !== httpBasicAuth!.user ||
-				basicAuthData.pass !== httpBasicAuth!.password
+				basicAuthData.name !== httpBasicAuth.user ||
+				basicAuthData.pass !== httpBasicAuth.password
 			) {
 				// Provided authentication data is wrong
 				return authorizationError(resp, realm, 403);
@@ -707,7 +707,7 @@ export class Wait implements INodeType {
 							if (binaryPropertyName.endsWith('[]')) {
 								binaryPropertyName = binaryPropertyName.slice(0, -2);
 							}
-							if (multiFile === true) {
+							if (multiFile) {
 								binaryPropertyName += fileCount++;
 							}
 							if (options.binaryPropertyName) {
@@ -717,7 +717,7 @@ export class Wait implements INodeType {
 							const fileJson = file.toJSON();
 							returnItem.binary![binaryPropertyName] = await this.helpers.copyBinaryFile(
 								file.path,
-								fileJson.name || fileJson.filename,
+								fileJson.name ?? fileJson.filename,
 								fileJson.type as string,
 							);
 
@@ -747,7 +747,7 @@ export class Wait implements INodeType {
 					},
 				};
 
-				const binaryPropertyName = (options.binaryPropertyName || 'data') as string;
+				const binaryPropertyName = (options.binaryPropertyName ?? 'data') as string;
 				returnItem.binary![binaryPropertyName] = await this.helpers.copyBinaryFile(
 					binaryFile.path,
 					mimeType,

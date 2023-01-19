@@ -4,6 +4,10 @@ const { defineConfig } = require('cypress');
 const BASE_URL = 'http://localhost:5678';
 
 module.exports = defineConfig({
+	retries: {
+		openMode: 1,
+		runMode: 3,
+	},
 	e2e: {
 		baseUrl: BASE_URL,
 		video: false,
@@ -11,15 +15,17 @@ module.exports = defineConfig({
 		experimentalSessionAndOrigin: true,
 		experimentalInteractiveRunEvents: true,
 
-		setupNodeEvents(on) {
+		setupNodeEvents(on, config) {
 			on('task', {
-				'db:reset': () => fetch(BASE_URL + '/e2e/db/reset', { method: 'POST' }),
-				'db:setup-owner': (payload) =>
+				reset: () => fetch(BASE_URL + '/e2e/db/reset', { method: 'POST' }),
+				'setup-owner': (payload) =>
 					fetch(BASE_URL + '/e2e/db/setup-owner', {
 						method: 'POST',
 						body: JSON.stringify(payload),
 						headers: { 'Content-Type': 'application/json' },
 					}),
+				'enable-feature': (feature) =>
+					fetch(BASE_URL + `/e2e/enable-feature/${feature}`, { method: 'POST' }),
 			});
 		},
 	},

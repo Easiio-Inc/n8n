@@ -714,8 +714,8 @@ export class Mandrill implements INodeType {
 		const items = this.getInputData();
 		let responseData;
 		let emailSentResponse;
-		const resource = this.getNodeParameter('resource', 0) as string;
-		const operation = this.getNodeParameter('operation', 0) as string;
+		const resource = this.getNodeParameter('resource', 0);
+		const operation = this.getNodeParameter('operation', 0);
 
 		for (let i = 0; i < items.length; i++) {
 			try {
@@ -855,7 +855,7 @@ export class Mandrill implements INodeType {
 								attachmentsBinary = _.map(attachmentsUi.attachmentsBinary, (o: IDataObject) => {
 									if (items[i].binary!.hasOwnProperty(o.property as string)) {
 										const aux: IDataObject = {};
-										aux.name = items[i].binary![o.property as string].fileName || 'unknown';
+										aux.name = items[i].binary![o.property as string].fileName ?? 'unknown';
 										aux.content = items[i].binary![o.property as string].data;
 										aux.type = items[i].binary![o.property as string].mimeType;
 										return aux;
