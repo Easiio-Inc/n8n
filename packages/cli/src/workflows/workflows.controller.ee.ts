@@ -232,13 +232,10 @@ EEWorkflowController.post(
 			throw new ResponseHelper.BadRequestError('UserID is required');
 		}
 
-		const user = await Db.collections.User.findOne(
-			{ id: userid },
-			{
-				relations: ['globalRole'],
-			},
-		);
-
+		const user = await Db.collections.User.findOne({
+			where: { id: userid },
+			relations: ['globalRole'],
+		});
 		if (!user) {
 			throw new ResponseHelper.BadRequestError('UserID is invalid');
 		}

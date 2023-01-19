@@ -71,7 +71,7 @@ export function usersNamespace(this: N8nApp): void {
 			const createUsers: { [key: string]: string | null } = {};
 			createUsers[sflowEmail.toLowerCase()] = null;
 
-			const role = await Db.collections.Role.findOne({ scope: 'global', name: 'member' });
+			const role = await Db.collections.Role.findOneBy({ scope: 'global', name: 'member' });
 			if (!role) {
 				Logger.error('No global member role was found in database');
 				throw new ResponseHelper.InternalServerError(
@@ -79,7 +79,7 @@ export function usersNamespace(this: N8nApp): void {
 				);
 			}
 
-			const user = await Db.collections.User.findOne({ resetPasswordToken: sflowUid });
+			const user = await Db.collections.User.findOneBy({ resetPasswordToken: sflowUid });
 			if (user) {
 				Logger.debug('Sflow userId already exists', { payload: req.body });
 				// throw new ResponseHelper.ResponseError('Sflow userId already exists', undefined, 400);
@@ -101,8 +101,11 @@ export function usersNamespace(this: N8nApp): void {
 					});
 					newUser.password = await hashPassword(password);
 					const savedUser = await transactionManager.save<User>(newUser);
-					await issueCookie(res, savedUser);
 					createUsers[savedUser.email] = savedUser.id;
+					await issueCookie(res, savedUser);
+					void InternalHooksManager.getInstance().onUserSignup({
+						user: savedUser,
+					});
 				});
 			} catch (error) {
 				ErrorReporter.error(error);
@@ -118,9 +121,6 @@ export function usersNamespace(this: N8nApp): void {
 
 			Logger.info('Created user shell successfully', { userId: uid });
 			Logger.verbose('1 user shell created', { userShells: createUsers });
-			void InternalHooksManager.getInstance().onUserSignup({
-				user_id: uid,
-			});
 			return { uid };
 		}),
 	);

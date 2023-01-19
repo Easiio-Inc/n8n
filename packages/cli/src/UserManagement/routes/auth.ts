@@ -32,14 +32,12 @@ export function authenticationMethods(this: N8nApp): void {
 				throw new Error('UserID is required to log in');
 			}
 
-			let user: User | undefined;
+			let user: User | null;
 			try {
-				user = await Db.collections.User.findOne(
-					{ id: userid },
-					{
-						relations: ['globalRole'],
-					},
-				);
+				user = await Db.collections.User.findOne({
+					where: { id: userid },
+					relations: ['globalRole'],
+				});
 			} catch (error) {
 				throw new Error('Unable to access database.');
 			}

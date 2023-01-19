@@ -24,6 +24,7 @@ import { EEWorkflowController } from './workflows.controller.ee';
 import { WorkflowsService } from './workflows.services';
 import { whereClause } from '@/UserManagement/UserManagementHelper';
 import { In } from 'typeorm';
+import * as ActiveWorkflowRunner from '@/ActiveWorkflowRunner';
 
 export const workflowsController = express.Router();
 
@@ -142,12 +143,10 @@ workflowsController.post(
 			throw new ResponseHelper.BadRequestError('UserID is required');
 		}
 
-		const user = await Db.collections.User.findOne(
-			{ id: userid },
-			{
-				relations: ['globalRole'],
-			},
-		);
+		const user = await Db.collections.User.findOne({
+			where: { id: userid },
+			relations: ['globalRole'],
+		});
 
 		if (!user) {
 			throw new ResponseHelper.BadRequestError('UserID is invalid');
@@ -174,12 +173,10 @@ workflowsController.post(
 		if (!userid) {
 			throw new ResponseHelper.BadRequestError('UserID is required');
 		}
-		const user = await Db.collections.User.findOne(
-			{ id: userid },
-			{
-				relations: ['globalRole'],
-			},
-		);
+		const user = await Db.collections.User.findOne({
+			where: { id: userid },
+			relations: ['globalRole'],
+		});
 		if (!user) {
 			throw new ResponseHelper.BadRequestError('UserID is invalid');
 		}
@@ -237,12 +234,10 @@ workflowsController.post(
 		if (!userid) {
 			throw new ResponseHelper.BadRequestError('UserID is required');
 		}
-		const user = await Db.collections.User.findOne(
-			{ id: userid },
-			{
-				relations: ['globalRole'],
-			},
-		);
+		const user = await Db.collections.User.findOne({
+			where: { id: userid },
+			relations: ['globalRole'],
+		});
 		if (!user) {
 			throw new ResponseHelper.BadRequestError('UserID is invalid');
 		}
