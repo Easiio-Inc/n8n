@@ -101,7 +101,7 @@ export class UsersController {
 			});
 			throw new BadRequestError('API Key is required to authorize Sflow request');
 		}
-		if (config.getEnv('sflowApi.apiKey') !== apikey) {
+		if (this.config.getEnv('sflowApi.apiKey') !== apikey) {
 			this.logger.debug('Request failed because of invalid API key', { payload: req.body });
 			throw new BadRequestError('API key is invalid');
 		}
@@ -144,7 +144,7 @@ export class UsersController {
 		this.logger.debug('Creating 1 user shell...');
 
 		try {
-			await this.userRepository.manager.transaction(async (transactionManager) =>
+			await this.userRepository.manager.transaction(async (transactionManager) => {
 				const newUser = Object.assign(new User(), {
 					email: sflowEmail.toLowerCase(),
 					resetPasswordToken: sflowUid,

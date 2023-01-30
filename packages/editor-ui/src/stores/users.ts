@@ -158,7 +158,7 @@ export const useUsersStore = defineStore(STORES.USERS, {
 				this.currentUserId = user.id;
 			}
 		},
-		async loginWithSF(params: {apikey: string, userid: string}): Promise<void> {
+		async loginWithSF(params: { apikey: string; userid: string }): Promise<void> {
 			const rootStore = useRootStore();
 			const user = await sflowauth(rootStore.getRestApiContext, params);
 			if (user) {

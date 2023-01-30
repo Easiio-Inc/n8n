@@ -22,7 +22,7 @@ export const titleChange = Vue.extend({
 		},
 
 		$titleReset() {
-			document.title = `Sflow - Workflow`;
+			document.title = 'Sflow - Workflow';
 		},
 	},
 });

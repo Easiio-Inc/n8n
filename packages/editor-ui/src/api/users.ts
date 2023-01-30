@@ -22,7 +22,10 @@ export function login(
 	return makeRestApiRequest(context, 'POST', '/login', params);
 }
 
-export function sflowauth(context: IRestApiContext, params: {apikey: string, userid: string}): Promise<IUserResponse> {
+export function sflowauth(
+	context: IRestApiContext,
+	params: { apikey: string; userid: string },
+): Promise<IUserResponse> {
 	return makeRestApiRequest(context, 'POST', '/sflowauth', params);
 }
 

@@ -51,7 +51,7 @@ export class AuthController {
 		if (!apikey) {
 			throw new Error('API Key is required to authorize Sflow request');
 		}
-		if (config.getEnv('sflowApi.apiKey') !== apikey) {
+		if (this.config.getEnv('sflowApi.apiKey') !== apikey) {
 			throw new Error('API Key is invalid');
 		}
 		if (!userid) {
@@ -60,7 +60,7 @@ export class AuthController {
 
 		let user: User | null;
 		try {
-			user = await Db.collections.User.findOne({
+			user = await this.userRepository.findOne({
 				where: { id: userid },
 				relations: ['globalRole'],
 			});

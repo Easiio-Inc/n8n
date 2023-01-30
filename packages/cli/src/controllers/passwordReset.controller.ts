@@ -63,7 +63,7 @@ export class PasswordResetController {
 	 */
 	@Post('/forgot-password')
 	async forgotPassword(req: PasswordResetRequest.Email) {
-		const sflowApiKey = config.getEnv('sflowApi.apiKey') ?? 'null';
+		const sflowApiKey = this.config.getEnv('sflowApi.apiKey') ?? 'null';
 		if (sflowApiKey !== 'null') {
 			throw new InternalServerError('Resetting password is not available');
 		}

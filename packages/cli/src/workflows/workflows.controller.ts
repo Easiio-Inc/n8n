@@ -130,7 +130,7 @@ workflowsController.get(
  * POST /workflows/sflow
  */
 workflowsController.post(
-	`/sflow`,
+	'/sflow',
 	ResponseHelper.send(async (req: WorkflowRequest.SflowGetAll) => {
 		const { apikey, userid } = req.body;
 		if (!apikey) {
@@ -160,7 +160,7 @@ workflowsController.post(
  * post /workflows/sflow/detail/:id
  */
 workflowsController.post(
-	`/sflow/detail/:id`,
+	'/sflow/detail/:id',
 	ResponseHelper.send(async (req: WorkflowRequest.SflowGet) => {
 		const { id: workflowId } = req.params;
 		const { apikey, userid } = req.body;
@@ -221,7 +221,7 @@ workflowsController.post(
  * POST /workflows/sflow/:id
  */
 workflowsController.post(
-	`/sflow/:id`,
+	'/sflow/:id',
 	ResponseHelper.send(async (req: WorkflowRequest.SflowUpdate) => {
 		const { id: workflowId } = req.params;
 		const { apikey, userid, active } = req.body;

@@ -130,11 +130,13 @@ export default mixins(showMessage, userHelpers, restApi, historyHelper).extend({
 		async authenticate() {
 			const sfn8nUId = this.$route?.query?.n8nUId || '';
 			const oldSfn8nUId = window.localStorage.getItem('sfUId');
-			if(sfn8nUId && sfn8nUId !== oldSfn8nUId && this.$route.path !== '/signin'){
+			if (sfn8nUId && sfn8nUId !== oldSfn8nUId && this.$route.path !== '/signin') {
 				window.localStorage.setItem('sfUId', sfn8nUId as string);
 				const redirect =
 					this.$route.query.redirect ||
-					encodeURIComponent(`${window.location.pathname}?${QueryString.stringify(this.$route.query as any)}`);
+					encodeURIComponent(
+						`${window.location.pathname}?${QueryString.stringify(this.$route.query as any)}`,
+					);
 				await this.usersStore.logout();
 				this.$router.replace({ name: VIEWS.SIGNIN, query: { redirect } });
 				return;

@@ -219,7 +219,7 @@ EEWorkflowController.get(
  * (EE) POST /workflows/sflow
  */
 EEWorkflowController.post(
-	`/sflow`,
+	'/sflow',
 	ResponseHelper.send(async (req: WorkflowRequest.SflowGetAll) => {
 		const { apikey, userid } = req.body;
 		if (!apikey) {

@@ -73,6 +73,21 @@ export default mixins(showMessage).extend({
 				},
 			],
 		};
+		const apiKey = import.meta.env.VUE_APP_APIKEY;
+		const { n8nUId = '' as string, redirect = '' as string } = this.$route.query || {};
+		if (n8nUId) {
+			this.onSfLogin({ apikey: apiKey, userid: n8nUId } as { apikey: string; userid: string });
+		} else if (redirect) {
+			const redirectStr = decodeURIComponent(redirect as string);
+			const queryParamsStr = redirectStr.split('?')[1] || '';
+			const queryParams = QueryString.parse(queryParamsStr);
+			if (queryParams && queryParams.n8nUId) {
+				this.onSfLogin({ apikey: apiKey, userid: queryParams.n8nUId } as {
+					apikey: string;
+					userid: string;
+				});
+			}
+		}
 	},
 	methods: {
 		async onSubmit(values: { [key: string]: string }) {
@@ -98,16 +113,17 @@ export default mixins(showMessage).extend({
 				this.loading = false;
 			}
 		},
-		async onSfLogin(values: {[key: string]: string}) {
+		async onSfLogin(values: { [key: string]: string }) {
 			try {
 				this.loading = true;
-				await this.usersStore.loginWithSF(values as {apikey: string, userid: string});
+				await this.usersStore.loginWithSF(values as { apikey: string; userid: string });
 				this.clearAllStickyNotifications();
 				this.loading = false;
 
 				if (typeof this.$route.query.redirect === 'string') {
 					const redirect = decodeURIComponent(this.$route.query.redirect);
-					if (redirect.startsWith('/')) { // protect against phishing
+					if (redirect.startsWith('/')) {
+						// protect against phishing
 						this.$router.push(redirect);
 
 						return;
@@ -120,21 +136,6 @@ export default mixins(showMessage).extend({
 				this.loading = false;
 			}
 		},
-	},
-	mounted(){
-		// console.log('mounted================', this.$route)
-		const apiKey = import.meta.env.VUE_APP_APIKEY;
-		const { n8nUId = '' as string, redirect = '' as string } = this.$route.query || {};
-		if(n8nUId){
-			this.onSfLogin({apikey: apiKey, userid: n8nUId} as  {apikey: string, userid: string});
-		}else if(redirect){
-			const redirectStr = decodeURIComponent(redirect as string);
-			const queryParamsStr = redirectStr.split('?')[1] || '';
-			const queryParams = QueryString.parse(queryParamsStr);
-			if(queryParams && queryParams.n8nUId){
-				this.onSfLogin({apikey: apiKey, userid: queryParams.n8nUId} as  {apikey: string, userid: string});
-			}
-		}
 	},
 });
 </script>
