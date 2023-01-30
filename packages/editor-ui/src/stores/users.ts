@@ -6,6 +6,7 @@ import {
 	getUsers,
 	inviteUsers,
 	login,
+	sflowauth,
 	loginCurrentUser,
 	logout,
 	reinvite,
