@@ -25,7 +25,7 @@ import { whereClause } from '@/UserManagement/UserManagementHelper';
 import { In } from 'typeorm';
 import { Container } from 'typedi';
 import { InternalHooks } from '@/InternalHooks';
-import * as ActiveWorkflowRunner from '@/ActiveWorkflowRunner';
+import { ActiveWorkflowRunner } from '@/ActiveWorkflowRunner';
 
 export const workflowsController = express.Router();
 
@@ -246,9 +246,9 @@ workflowsController.post(
 		await Db.collections.Workflow.update(workflowId, { active, updatedAt: new Date() });
 
 		if (active) {
-			await ActiveWorkflowRunner.getInstance().add(workflowId, 'activate');
+			await Container.get(ActiveWorkflowRunner).add(workflowId, 'activate');
 		} else {
-			await ActiveWorkflowRunner.getInstance().remove(workflowId);
+			await Container.get(ActiveWorkflowRunner).remove(workflowId);
 		}
 
 		return {
