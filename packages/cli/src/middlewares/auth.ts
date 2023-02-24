@@ -89,7 +89,7 @@ export const setupAuthMiddlewares = (
 			req.url.startsWith(`/${restEndpoint}/login`) ||
 			req.url.startsWith(`/${restEndpoint}/logout`) ||
 			req.url.startsWith(`/${restEndpoint}/resolve-signup-token`) ||
-			req.url.startsWith(`/${restEndpoint}/createuser`) ||
+			req.url.startsWith(`/${restEndpoint}/users/createuser`) ||
 			req.url.startsWith(`/${restEndpoint}/sflowauth`) ||
 			isPostUsersId(req, restEndpoint) ||
 			req.url.startsWith(`/${restEndpoint}/forgot-password`) ||
@@ -128,11 +128,7 @@ export const setupAuthMiddlewares = (
 			`/${restEndpoint}/ldap/sync`,
 			`/${restEndpoint}/ldap/test-connection`,
 		];
-		const getRestrictedUrls = [
-			`/${restEndpoint}/users`,
-			`/${restEndpoint}/ldap/sync`,
-			`/${restEndpoint}/ldap/config`,
-		];
+		const getRestrictedUrls = [`/${restEndpoint}/ldap/sync`, `/${restEndpoint}/ldap/config`];
 		const putRestrictedUrls = [`/${restEndpoint}/ldap/config`];
 		const trimmedUrl = req.url.endsWith('/') ? req.url.slice(0, -1) : req.url;
 		if (
