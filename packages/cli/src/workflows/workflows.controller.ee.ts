@@ -245,19 +245,18 @@ EEWorkflowController.post(
 			throw new ResponseHelper.BadRequestError('UserID is invalid');
 		}
 
-		const workflows = (await EEWorkflows.getMany(
-			user,
-			req.query.filter,
-		)) as unknown as WorkflowEntity[];
-
-		return Promise.all(
-			workflows.map(async (workflow) => {
-				EEWorkflows.addOwnerAndSharings(workflow);
-				await EEWorkflows.addCredentialsToWorkflow(workflow, user);
-				workflow.nodes = [];
-				return workflow;
+		const [workflows, workflowOwnerRole] = await Promise.all([
+			EEWorkflows.getMany(user, req.query.filter),
+			Db.collections.Role.findOneOrFail({
+				select: ['id'],
+				where: { name: 'owner', scope: 'workflow' },
 			}),
-		);
+		]);
+
+		return workflows.map((workflow) => {
+			EEWorkflows.addOwnerId(workflow, workflowOwnerRole);
+			return workflow;
+		});
 	}),
 );
 
